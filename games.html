@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saba Palestina vs Malmö FF - Realistiska Spelare</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #166534;
+            font-family: 'Segoe UI', sans-serif;
+            touch-action: manipulation;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 35%, #15803d 35%, #166534 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .grass-stripes {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 65%;
+            background: repeating-linear-gradient(to bottom, rgba(0,0,0,0.08), rgba(0,0,0,0.08) 60px, transparent 60px, transparent 120px);
+            pointer-events: none;
+        }
+
+        #goal {
+            position: absolute;
+            top: 22%;
+            width: 360px;
+            height: 180px;
+            border: 10px solid #f8fafc;
+            border-bottom: none;
+            background: repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 10px),
+                        repeating-linear-gradient(-45deg, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            z-index: 5;
+        }
+
+        /* Goalkeeper Hands */
+        #goalkeeper-hands {
+            position: absolute;
+            width: 100px;
+            height: 55px;
+            display: flex;
+            justify-content: space-between;
+            transition: transform 0.05s ease-out;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .hand-wrapper { position: relative; width: 42px; height: 50px; }
+        .palm {
+            width: 30px; height: 32px;
+            background: linear-gradient(135deg, #f97316 0%, #d97706 100%);
+            border: 1.5px solid #fff;
+            border-radius: 8px 8px 12px 12px;
+            position: absolute; bottom: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        }
+        .finger { position: absolute; width: 6px; background: #f97316; border: 1px solid #fff; border-radius: 3px 3px 0 0; border-bottom: none; }
+        .f-pinky  { left: 2px;  height: 14px; top: -11px; }
+        .f-ring   { left: 9px;  height: 19px; top: -16px; }
+        .f-middle { left: 16px; height: 22px; top: -19px; }
+        .f-index  { left: 23px; height: 18px; top: -15px; }
+        .thumb { width: 14px; height: 8px; top: 14px; border-radius: 4px; }
+        .left-hand .thumb { left: -10px; transform: rotate(-25deg); }
+        .right-hand .thumb { right: -10px; transform: rotate(25deg); }
+
+        /* Realistiska spelare */
+        .player {
+            position: absolute;
+            width: 60px;
+            height: 110px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .head-container { position: relative; width: 30px; height: 35px; }
+        .hair { 
+            position: absolute; top: -2px; left: 50%; transform: translateX(-50%);
+            width: 32px; height: 15px; background: #2b1d0e; border-radius: 15px 15px 5px 5px; z-index: 2;
+        }
+        .head { 
+            width: 28px; height: 28px; background: #ffdbac; border-radius: 50%; 
+            position: relative; overflow: hidden; border: 1px solid rgba(0,0,0,0.1);
+        }
+        .eye { 
+            position: absolute; top: 12px; width: 4px; height: 4px; background: #000; border-radius: 50%; 
+        }
+        .eye.left { left: 6px; }
+        .eye.right { right: 6px; }
+
+        .torso { 
+            width: 44px; height: 50px; border-radius: 8px; position: relative; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: inset 0 -5px 10px rgba(0,0,0,0.2);
+        }
+        
+        /* Namn på ryggen */
+        .player-name {
+            font-size: 8px; font-weight: 900; color: white; text-transform: uppercase;
+            letter-spacing: 0.5px; margin-top: 5px; text-shadow: 1px 1px 0px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+        .player-number { font-size: 18px; font-weight: 900; color: rgba(255,255,255,0.9); line-height: 1; }
+
+        .arm { position: absolute; width: 12px; height: 35px; background: #ffdbac; top: 5px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.1); }
+        .arm.left { left: -10px; transform: rotate(10deg); }
+        .arm.right { right: -10px; transform: rotate(-10deg); }
+        
+        .legs { display: flex; justify-content: space-between; width: 38px; margin-top: -2px; }
+        .leg { width: 16px; height: 30px; background: #1a1a1a; border-radius: 0 0 4px 4px; border: 1px solid #000; }
+        .shadow { position: absolute; width: 50px; height: 15px; background: rgba(0,0,0,0.3); border-radius: 50%; bottom: -10px; left: 50%; transform: translateX(-50%); z-index: -1; }
+
+        #kicker { bottom: 35px; left: calc(50% - 100px); transform: scale(1.4); z-index: 35; }
+
+        #ball-container {
+            position: absolute;
+            bottom: 40px; 
+            left: calc(50% - 20px);
+            width: 40px;
+            height: 40px;
+            z-index: 30;
+        }
+        #ball { width: 100%; height: 100%; background: radial-gradient(circle at 30% 30%, #fff, #ddd); border-radius: 50%; box-shadow: 0 8px 15px rgba(0,0,0,0.4); position: relative; }
+
+        #message {
+            @apply absolute top-1/4 text-7xl font-black text-white italic tracking-tighter hidden z-50 text-center w-full;
+            text-shadow: 5px 5px 0px #000;
+        }
+
+        .score-board { @apply absolute top-8 flex gap-6 z-40; }
+        .pen-spot { position: absolute; bottom: 48px; width: 20px; height: 10px; background: rgba(255,255,255,0.7); border-radius: 50%; z-index: 25; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div class="grass-stripes"></div>
+    <div class="pen-spot"></div>
+
+    <div id="overlay" class="absolute inset-0 bg-slate-900/95 flex flex-col items-center justify-center z-[100]">
+        <h1 class="text-6xl text-white font-black italic mb-4 tracking-tighter text-center px-4">SABA VS MFF</h1>
+        <p class="text-blue-300 mb-8 font-bold text-xl uppercase tracking-widest">Först till 5 mål vinner!</p>
+        <div class="flex flex-col sm:flex-row">
+            <button onclick="startGame('pal')" class="px-10 py-5 m-2 rounded-xl font-black text-white bg-green-700 border-b-8 border-green-900 transition-all hover:scale-110">SABA PALESTINA</button>
+            <button onclick="startGame('mff')" class="px-10 py-5 m-2 rounded-xl font-black text-white bg-sky-500 border-b-8 border-sky-700 transition-all hover:scale-110">MALMÖ FF</button>
+        </div>
+    </div>
+
+    <div id="winner-overlay" class="absolute inset-0 bg-black/90 hidden flex-col items-center justify-center z-[110]">
+        <div class="text-yellow-400 text-2xl font-bold uppercase tracking-[0.3em] mb-2">Match Slut</div>
+        <h2 id="winner-name" class="text-7xl text-white font-black italic mb-8 tracking-tighter text-center px-4">LAG VINNER!</h2>
+        <button onclick="location.reload()" class="px-12 py-6 rounded-full font-black text-white bg-white/10 border-2 border-white/20 hover:bg-white hover:text-black transition-all text-xl">SPELA IGEN</button>
+    </div>
+
+    <div class="score-board">
+        <div class="bg-black/60 backdrop-blur-md p-5 rounded-3xl text-white border-2 border-white/10 text-center min-w-[140px]">
+            <div id="p-label" class="text-xs font-black opacity-60 uppercase mb-1">DU</div>
+            <div class="text-4xl font-black" id="player-score">0</div>
+        </div>
+        <div class="flex items-center text-white font-black text-3xl">-</div>
+        <div class="bg-black/60 backdrop-blur-md p-5 rounded-3xl text-white border-2 border-white/10 text-center min-w-[140px]">
+            <div id="c-label" class="text-xs font-black opacity-60 uppercase mb-1">DATOR</div>
+            <div class="text-4xl font-black" id="cpu-score">0</div>
+        </div>
+    </div>
+
+    <div id="turn-indicator" class="absolute top-44 text-white font-black bg-white/10 backdrop-blur-sm px-6 py-2 rounded-full border border-white/20 uppercase tracking-widest text-sm">DIN TUR ATT SKJUTA</div>
+
+    <div id="message">MÅÅÅL!</div>
+
+    <div id="goal">
+        <div id="goalkeeper-hands">
+            <div class="hand-wrapper left-hand">
+                <div class="palm">
+                    <div class="finger f-pinky"></div>
+                    <div class="finger f-ring"></div>
+                    <div class="finger f-middle"></div>
+                    <div class="finger f-index"></div>
+                    <div class="finger thumb"></div>
+                </div>
+            </div>
+            <div class="hand-wrapper right-hand">
+                <div class="palm">
+                    <div class="finger f-pinky"></div>
+                    <div class="finger f-ring"></div>
+                    <div class="finger f-middle"></div>
+                    <div class="finger f-index"></div>
+                    <div class="finger thumb"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="kicker" class="player">
+        <div class="shadow"></div>
+        <div class="head-container">
+            <div class="hair"></div>
+            <div class="head">
+                <div class="eye left"></div>
+                <div class="eye right"></div>
+            </div>
+        </div>
+        <div id="kicker-jersey" class="torso">
+            <div id="kicker-name-tag" class="player-name">MUSTI</div>
+            <div class="player-number">10</div>
+            <div class="arm left"></div>
+            <div class="arm right"></div>
+        </div>
+        <div class="legs"><div class="leg"></div><div class="leg"></div></div>
+    </div>
+
+    <div id="ball-container">
+        <div id="ball">
+            <div class="opacity-30 w-full h-full" style="background: repeating-linear-gradient(45deg, #333 0 3px, transparent 3px 12px); border-radius: 50%;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const ballContainer = document.getElementById('ball-container');
+    const goalkeeperHands = document.getElementById('goalkeeper-hands');
+    const kicker = document.getElementById('kicker');
+    const kickerJersey = document.getElementById('kicker-jersey');
+    const kickerNameTag = document.getElementById('kicker-name-tag');
+    const playerScoreEl = document.getElementById('player-score');
+    const cpuScoreEl = document.getElementById('cpu-score');
+    const message = document.getElementById('message');
+    const overlay = document.getElementById('overlay');
+    const winnerOverlay = document.getElementById('winner-overlay');
+    const winnerNameEl = document.getElementById('winner-name');
+    const turnIndicator = document.getElementById('turn-indicator');
+
+    let playerScore = 0;
+    let cpuScore = 0;
+    let isKicking = false;
+    let isPlayerTurn = true;
+    let playerTeam = '';
+    let gameOver = false;
+    let lastMouseX = 0;
+
+    const PAL_COLOR = "#15803d";
+    const MFF_COLOR = "#0ea5e9";
+    const MAX_GOALS = 5;
+
+    function startGame(team) {
+        playerTeam = team;
+        overlay.style.display = 'none';
+        document.getElementById('p-label').innerText = team === 'pal' ? 'SABA' : 'MFF';
+        document.getElementById('c-label').innerText = team === 'pal' ? 'MFF' : 'SABA';
+        resetRound();
+    }
+
+    function setupColors() {
+        const teamColor = (isPlayerTurn ? playerTeam : (playerTeam === 'pal' ? 'mff' : 'pal')) === 'pal' ? PAL_COLOR : MFF_COLOR;
+        kickerJersey.style.backgroundColor = teamColor;
+        
+        // Sätt namn på ryggen baserat på laget
+        if (isPlayerTurn) {
+            kickerNameTag.innerText = playerTeam === 'pal' ? "MUSTI" : "JOHN";
+        } else {
+            kickerNameTag.innerText = playerTeam === 'pal' ? "JOHN" : "MUSTI";
+        }
+    }
+
+    function resetRound() {
+        if (gameOver) return;
+        isKicking = false;
+        ballContainer.style.transition = 'none';
+        ballContainer.style.bottom = '40px'; 
+        ballContainer.style.left = 'calc(50% - 20px)';
+        ballContainer.style.transform = 'scale(1)';
+        
+        goalkeeperHands.style.left = '130px';
+        goalkeeperHands.style.top = '100px'; 
+        goalkeeperHands.style.transform = 'rotate(0deg)';
+        kicker.style.transform = 'scale(1.4) translateX(0)';
+        
+        turnIndicator.innerText = isPlayerTurn ? "DIN TUR ATT SKJUTA" : "DATORN SKJUTER - RÄDDA!";
+        setupColors();
+    }
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isPlayerTurn && !isKicking && !gameOver) {
+            const goalRect = document.getElementById('goal').getBoundingClientRect();
+            let x = e.clientX - goalRect.left - 50; 
+            let y = e.clientY - goalRect.top - 27;
+
+            const deltaX = e.clientX - lastMouseX;
+            const rotation = Math.max(-15, Math.min(15, deltaX * 0.8));
+            
+            goalkeeperHands.style.left = x + 'px';
+            goalkeeperHands.style.top = y + 'px';
+            goalkeeperHands.style.transform = `rotate(${rotation}deg)`;
+            
+            lastMouseX = e.clientX;
+        }
+    });
+
+    window.addEventListener('click', (e) => {
+        if (isKicking || overlay.style.display !== 'none' || !isPlayerTurn || gameOver) return;
+        if (e.clientY < window.innerHeight * 0.6) playerShoot(e.clientX, e.clientY);
+    });
+
+    function playerShoot(tx, ty) {
+        isKicking = true;
+        kicker.style.transform = 'scale(1.4) translateX(30px) rotate(-15deg)';
+        const cpuGkX = 20 + Math.random() * 210;
+        const cpuGkY = 20 + Math.random() * 120;
+        setTimeout(() => {
+            goalkeeperHands.style.left = cpuGkX + 'px';
+            goalkeeperHands.style.top = cpuGkY + 'px';
+            goalkeeperHands.style.transform = cpuGkX < 130 ? 'rotate(-10deg)' : 'rotate(10deg)';
+        }, 150);
+        executeShot(tx, ty, true);
+    }
+
+    function cpuShoot() {
+        if (gameOver) return;
+        isKicking = true;
+        const goalRect = document.getElementById('goal').getBoundingClientRect();
+        const tx = goalRect.left + 60 + Math.random() * (goalRect.width - 120);
+        const ty = goalRect.top + 40 + Math.random() * (goalRect.height - 80);
+        kicker.style.transform = 'scale(1.4) translateX(30px) rotate(-15deg)';
+        executeShot(tx, ty, false);
+    }
+
+    function checkWin() {
+        if (playerScore >= MAX_GOALS) {
+            endGame(playerTeam === 'pal' ? "SABA PALESTINA VINNER!" : "MALMÖ FF VINNER!");
+            return true;
+        } else if (cpuScore >= MAX_GOALS) {
+            endGame(playerTeam === 'pal' ? "MALMÖ FF VINNER!" : "SABA PALESTINA VINNER!");
+            return true;
+        }
+        return false;
+    }
+
+    function endGame(txt) {
+        gameOver = true;
+        winnerNameEl.innerText = txt;
+        winnerOverlay.style.display = 'flex';
+    }
+
+    function executeShot(tx, ty, playerShooting) {
+        const ballX = tx - 20;
+        const ballY = window.innerHeight - ty;
+        ballContainer.style.transition = 'all 0.6s cubic-bezier(0.15, 0.45, 0.3, 1)';
+        ballContainer.style.left = ballX + 'px';
+        ballContainer.style.bottom = ballY + 'px';
+        ballContainer.style.transform = 'scale(0.35)';
+
+        setTimeout(() => {
+            const goalRect = document.getElementById('goal').getBoundingClientRect();
+            const currentGkX = parseInt(goalkeeperHands.style.left);
+            const currentGkY = parseInt(goalkeeperHands.style.top);
+            
+            const ballLocalX = ballX - goalRect.left;
+            const ballLocalY = ty - goalRect.top;
+
+            const inGoal = (ballX > goalRect.left && ballX < goalRect.right && ty > goalRect.top && ty < goalRect.bottom);
+            const distSide = Math.abs(ballLocalX - (currentGkX + 50));
+            const distHeight = Math.abs(ballLocalY - (currentGkY + 27));
+            
+            const saved = distSide < 65 && distHeight < 55;
+
+            if (inGoal && !saved) {
+                if (playerShooting) playerScore++; else cpuScore++;
+                showMsg("MÅÅÅL!");
+            } else if (inGoal && saved) {
+                showMsg("RÄDDAD!");
+            } else {
+                showMsg("UTANFÖR!");
+            }
+
+            playerScoreEl.innerText = playerScore;
+            cpuScoreEl.innerText = cpuScore;
+
+            if (!checkWin()) {
+                setTimeout(() => {
+                    isPlayerTurn = !isPlayerTurn;
+                    resetRound();
+                    if (!isPlayerTurn) setTimeout(cpuShoot, 1000);
+                }, 1600);
+            }
+        }, 600);
+    }
+
+    function showMsg(txt) {
+        message.innerText = txt;
+        message.style.display = 'block';
+        setTimeout(() => message.style.display = 'none', 1300);
+    }
+</script>
+
+</body>
+</html>
