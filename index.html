@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Min Portfolio | Hala Madrid Edition</title>
+    <style>
+        /* Real Madrid färgtema */
+        :root {
+            --rm-white: #ffffff;
+            --rm-dark-blue: #001c58; /* Den klassiska mörkblå färgen */
+            --rm-gold: #c1a162;      /* Guldaccenten från emblemet */
+            --rm-light-gray: #f4f4f4;
+            --text-main: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--rm-light-gray);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            align-items: center;
+        }
+
+        header {
+            padding: 4rem 1rem;
+            text-align: center;
+            background-color: var(--rm-dark-blue);
+            width: 100%;
+            color: var(--rm-white);
+            border-bottom: 5px solid var(--rm-gold);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .intro-text {
+            font-size: 1.2rem;
+            margin-top: 1rem;
+            color: var(--rm-light-gray);
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Navigationskort med guld-tema */
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem;
+            width: 90%;
+            max-width: 1100px;
+            padding: 4rem 0;
+        }
+
+        .card {
+            background-color: var(--rm-white);
+            border-radius: 8px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            text-decoration: none;
+            color: inherit;
+            border-bottom: 4px solid transparent;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            border-bottom: 4px solid var(--rm-gold);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: var(--rm-dark-blue);
+            font-weight: 700;
+        }
+
+        .card p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 2rem;
+            font-size: 0.9rem;
+            color: var(--rm-dark-blue);
+            font-weight: bold;
+        }
+
+        /* Responsivitet */
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+            .container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Hala Madrid | Min Portfolio</h1>
+        <p class="intro-text">Välkommen till min digitala arena. Här hittar du mina prestationer, projekt och skapelser.</p>
+    </header>
+
+    <main class="container">
+        <!-- Länk till CV -->
+        <a href="cv.html" class="card">
+            <h2>📜 Mitt CV</h2>
+            <p>Utforska min karriärsresa och tekniska kunskaper i sann mästarklass.</p>
+        </a>
+
+        <!-- Länk till Gymnasiearbete -->
+        <a href="gymnasiearbete.html" class="card">
+            <h2>🎓 Gymnasiearbete</h2>
+            <p>Mitt största akademiska projekt hittills. Analys, strategi och målmedvetenhet.</p>
+        </a>
+
+        <!-- Länk till Spel -->
+        <a href="games.html" class="card">
+            <h2>🎮 Mina Spel</h2>
+            <p>Här kan du spela mina egenutvecklade projekt. Från kod till spelplan.</p>
+        </a>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 - Designad med inspiration från Real Madrid CF</p>
+    </footer>
+
+</body>
+</html>
